@@ -1,8 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lisp", "Lisp\Lisp.csproj", "{F4859844-A8FB-4CE4-9184-2DD789A07085}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LispTests", "LispTests\LispTests.csproj", "{2517BF60-4567-456F-AE2E-25B280AD24F2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LispEngine", "LispEngine\LispEngine.csproj", "{81EE52DF-F912-4FE5-973C-262762CA3B99}"
