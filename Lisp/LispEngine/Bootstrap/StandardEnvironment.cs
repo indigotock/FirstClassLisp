@@ -2,6 +2,7 @@
 using LispEngine.Evaluation;
 using LispEngine.ReflectionBinding;
 using LispEngine.Util;
+using System.Reflection;
 
 namespace LispEngine.Bootstrap
 {
@@ -15,7 +16,7 @@ namespace LispEngine.Bootstrap
             env = ReflectionBuiltins.AddTo(env);
             // Add functions for reading files, executing lisp programs
             // defined in files.
-            ResourceLoader.ExecuteResource(env, "LispEngine.Bootstrap.IO.lisp");
+			ResourceLoader.ExecuteResource(new Statistics(),typeof(StandardEnvironment).GetTypeInfo().Assembly, env, "LispEngine.Bootstrap.IO.lisp");
             return env;
         }
 

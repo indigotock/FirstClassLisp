@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Microsoft.CSharp;
 
 namespace LispEngine.Datums
 {
@@ -58,15 +57,11 @@ namespace LispEngine.Datums
         {
             return !Equals(left, right);
         }
-
-        // http://stackoverflow.com/questions/323640/can-i-convert-a-c-sharp-string-value-to-an-escaped-string-literal
-        // Seems the simplest approach, although I have no idea how performant it is.
-        private static readonly CSharpCodeProvider provider = new CSharpCodeProvider();
         private static string ToLiteral(string input)
         {
-            var writer = new StringWriter();
-            provider.GenerateCodeFromExpression(new CodePrimitiveExpression(input), writer, null);
-            return writer.GetStringBuilder().ToString();
+            //todo implement escaping of strings:
+            // http://stackoverflow.com/questions/323640/can-i-convert-a-c-sharp-string-value-to-an-escaped-string-literal
+            return input;
         }
 
         public override string ToString()

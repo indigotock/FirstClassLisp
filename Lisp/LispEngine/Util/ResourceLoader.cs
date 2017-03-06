@@ -13,10 +13,6 @@ namespace LispEngine.Util
 {
     public class ResourceLoader
     {
-        public static IEnumerable<Datum> ReadDatums(string resourceFile)
-        {
-            return ReadDatums(Assembly.GetCallingAssembly(), resourceFile);
-        }
 
         public static IEnumerable<Datum> ReadDatums(Assembly assembly, string resourceFile)
         {
@@ -30,11 +26,6 @@ namespace LispEngine.Util
             {
                 yield return d;
             }
-        }
-
-        public static void ExecuteResource(LexicalEnvironment env, string resourceFile)
-        {
-            ExecuteResource(new Statistics(), Assembly.GetCallingAssembly(), env, resourceFile);
         }
 
         /**

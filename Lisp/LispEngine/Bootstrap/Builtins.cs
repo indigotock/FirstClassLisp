@@ -5,6 +5,7 @@ using LispEngine.Core;
 using LispEngine.Datums;
 using LispEngine.Evaluation;
 using LispEngine.Lexing;
+using System.Reflection;
 using LispEngine.Parsing;
 using LispEngine.ReflectionBinding;
 using LispEngine.Util;
@@ -23,8 +24,9 @@ namespace LispEngine.Bootstrap
             env = Arithmetic.Extend(env);
             env.Define("append", Append.Instance);
             env = SymbolFunctions.Extend(env);
-            ResourceLoader.ExecuteResource(env, "LispEngine.Bootstrap.Builtins.lisp");
-            ResourceLoader.ExecuteResource(env, "LispEngine.Bootstrap.Library.lisp");
+			var assembly = typeof(Builtins).GetTypeInfo().Assembly;
+			ResourceLoader.ExecuteResource(new Statistics(), assembly, env, "LispEngine.Bootstrap.Builtins.lisp");
+			ResourceLoader.ExecuteResource(new Statistics(), assembly, env, "LispEngine.Bootstrap.Library.lisp");
             env = Reader.AddTo(env);
             return env;
         }

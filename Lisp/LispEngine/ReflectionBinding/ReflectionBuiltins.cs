@@ -30,10 +30,10 @@ namespace LispEngine.ReflectionBinding
 
         class InstanceMethod : Function
         {
-            private readonly string name;
+			private readonly string methodName;
             public InstanceMethod(string name)
             {
-                this.name = name;
+                this.methodName = name;
             }
 
             public Datum Evaluate(Datum args)
@@ -42,13 +42,14 @@ namespace LispEngine.ReflectionBinding
 
                 var target = unwrapDatum(argArray[0]);
                 var methodArgs = unwrap(args.Enumerate().Skip(1));
-                var result = target.GetType().InvokeMember(name, BindingFlags.Default | BindingFlags.InvokeMethod, null, target, methodArgs);
-                return result.ToAtom();
+				var method = target.GetType().GetRuntimeMethods().First(e => e.Name.Equals(methodName));
+				var result = method.Invoke(target, methodArgs);
+				return result.ToAtom();
             }
 
             public override string ToString()
             {
-                return string.Format(".{0}", name);
+                return string.Format(".{0}", methodName);
             }
         }
 
@@ -65,9 +66,8 @@ namespace LispEngine.ReflectionBinding
             public Datum Evaluate(Datum args)
             {
                 var methodArgs = unwrap(args.Enumerate());
-                var result = type.InvokeMember(methodName,
-                                               BindingFlags.Public | BindingFlags.InvokeMethod | BindingFlags.Static,
-                                               null, null, methodArgs);
+				var method = type.GetRuntimeMethods().First(e => e.Name.Equals(methodName));
+				var result = method.Invoke(null, methodArgs);
                 return result == null ? Null.Instance : DatumHelpers.atom(result);
             }
 
@@ -123,11 +123,11 @@ namespace LispEngine.ReflectionBinding
             var type = Type.GetType(fullTypeName);
             if (type != null)
                 return type;
-            var assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.GetType(fullTypeName) != null);
+			var assembly = typeof(ReflectionBuiltins).GetTypeInfo().Assembly;
             if(assembly != null)
                 return assembly.GetType(fullTypeName);
-            throw DatumHelpers.error("Could not locate type '{0}' in any of the {1} currently loaded assemblies",
-                                     fullTypeName, AppDomain.CurrentDomain.GetAssemblies().Length);
+            throw DatumHelpers.error("Could not locate type '{0}' in loaded assembly",
+                                     fullTypeName);
         }
 
         class GetTypeFunction : Function
@@ -154,9 +154,10 @@ namespace LispEngine.ReflectionBinding
             env.Define("get-type", new GetTypeFunction().ToStack());
             env.Define("new", new New().ToStack());
             env.Define("atom", new WrapAtom().ToStack());
-            // Define "dot" and "slash" as a macros which allow us to use
-            // Clojure-style syntax for invoking and referring to methods.
-            ResourceLoader.ExecuteResource(env, "LispEngine.ReflectionBinding.ReflectionBuiltins.lisp");
+			// Define "dot" and "slash" as a macros which allow us to use
+			// Clojure-style syntax for invoking and referring to methods.
+			var assembly = typeof(ReflectionBuiltins).GetTypeInfo().Assembly;
+			ResourceLoader.ExecuteResource(new Statistics(), assembly, env, "LispEngine.ReflectionBinding.ReflectionBuiltins.lisp");
             return env;
         }
     }
