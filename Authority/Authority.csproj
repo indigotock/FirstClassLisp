@@ -9,6 +9,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="NuGet.CommandLine" Version="3.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\LispEngine\LispEngine.csproj">
       <Project>{30AC7289-E74E-40BB-8148-713E5D88BB96}</Project>
       <Name>LispEngine</Name>
