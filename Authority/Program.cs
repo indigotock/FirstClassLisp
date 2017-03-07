@@ -8,6 +8,7 @@ using LispEngine.Evaluation;
 using LispEngine.Lexing;
 using LispEngine.Parsing;
 using LispEngine.Util;
+using Authority.Environments;
 
 class Program
 {
@@ -25,24 +26,60 @@ class Program
 
 	static void Main(string[] args)
 	{
-		try
-		{
-			var env = StandardEnvironment.CreateSandbox();
-			env.Define("args", DatumHelpers.atomList(args));
-			var statistics = new Statistics();
-			env = statistics.AddTo(env);
-			var assembly = typeof(Program).GetTypeInfo().Assembly;
+        var running = true;
+        while (running)
+        {
+            var env = StandardEnvironment.CreateSandbox();
+            env.Define("args", DatumHelpers.atomList(args));
+            var statistics = new Statistics();
+            env = statistics.AddTo(env);
+            var assembly = typeof(Program).GetTypeInfo().Assembly;
 
-			var evaluator = new Evaluator();
-			Datum result = default(Datum);
-			foreach (var d in ReadDatums(Console.ReadLine()))
-				result = evaluator.Evaluate(statistics, env, d);
+            var docEnvironment = new StandardDefinition();
 
-			Console.Write(result);
-		}
-		catch (Exception ex)
-		{
-			Console.Error.WriteLine("ERROR:\n{0}\n{1}\n", ex, ex.StackTrace);
-		}
+            var maker = new Maker() { Environment = docEnvironment };
+
+
+            try
+            {
+                var evaluator = new Evaluator();
+
+                var input = Console.ReadLine();
+                Datum result = default(Datum);
+                foreach (var d in ReadDatums(input))
+                    result = evaluator.Evaluate(statistics, env, d);
+
+                Console.Write(result);
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine("ERROR:\n{0}\n{1}\n", ex, ex.StackTrace);
+            }
+        }
 	}
+
+    public class Maker
+    {
+        public EnvironmentDefinition Environment { get; set; }
+    }
+}
+
+internal class StandardDefinition : EnvironmentDefinition
+{
+    class DocumentFunction : Function
+    {
+        public Datum Evaluate(Datum args)
+        {
+            return args.ToAtom();
+        }
+
+        public override string ToString()
+        {
+            return ",get-type";
+        }
+    }
+    public StandardDefinition()
+    {
+        this.Functions.Add(new DocumentFunction());
+    }
 }
